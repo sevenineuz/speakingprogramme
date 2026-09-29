@@ -116,8 +116,14 @@ body{
      the stage, and a mask only hides them visually. Without it the page scrolls sideways on
      a phone. Safe to clip here: perspective/preserve-3d live on the children, not this box. */
   overflow:hidden;
-  -webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);
-  mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);
+  /* fade all four edges, not just the sides: the floor glow reaches the bottom of the
+     stage, and without a vertical fade it ends in a hard line above "Choose your level" */
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent),
+                     linear-gradient(180deg,transparent,#000 8%,#000 78%,transparent);
+  -webkit-mask-composite:source-in;
+  mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent),
+             linear-gradient(180deg,transparent,#000 8%,#000 78%,transparent);
+  mask-composite:intersect;
 }
 .hero-3d{position:absolute; inset:0; perspective:1000px; perspective-origin:50% 44%;}
 .hero-tilt{position:absolute; inset:0; transform-style:preserve-3d; will-change:transform;}

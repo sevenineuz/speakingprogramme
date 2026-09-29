@@ -43,12 +43,13 @@ body{
 .glow{position:absolute; top:0; left:0; border-radius:50%; will-change:transform;}
 .glow-a{
   width:820px; height:820px; margin:-410px 0 0 -410px;
-  background:radial-gradient(circle closest-side, rgba(0,122,255,.46), rgba(0,122,255,.18) 46%, rgba(0,122,255,0) 72%);
+  /* neutral grey and very faint: the glow is ambience, it shouldn't compete with the content */
+  background:radial-gradient(circle closest-side, rgba(60,60,67,.07), rgba(60,60,67,.03) 46%, rgba(60,60,67,0) 72%);
   filter:blur(70px);
 }
 .glow-b{
   width:380px; height:380px; margin:-190px 0 0 -190px;
-  background:radial-gradient(circle closest-side, rgba(90,200,250,.48), rgba(0,122,255,0) 70%);
+  background:radial-gradient(circle closest-side, rgba(60,60,67,.05), rgba(60,60,67,0) 70%);
   filter:blur(40px);
 }
 .bk{font-family:'DM Serif Display',serif;color:var(--black);letter-spacing:-.4px;}

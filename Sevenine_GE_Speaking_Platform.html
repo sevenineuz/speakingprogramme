@@ -7,6 +7,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<script>
+/* theme: a saved choice wins, otherwise follow the device. Runs before paint to avoid a flash. */
+(function(){
+  var t=null; try{ t=localStorage.getItem("sev_theme"); }catch(e){}
+  if(t!=="light" && t!=="dark") t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  document.documentElement.setAttribute("data-theme", t);
+})();
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 :root{
@@ -20,10 +28,43 @@
   --sh-3:0 14px 36px rgba(0,64,150,.12);
   --glass:rgba(255,255,255,.86);
   --glass-solid:rgba(255,255,255,.94);   /* for sticky surfaces that content scrolls behind */
+  --blue-bd:#D3E4FA; --blu-hover:#D9E9FD; --purple-bd:#E9D5F7; --green-tx:#1d8a3e;
+  --amb-bg1:#FFF9EC; --amb-bg2:#FFF4DC; --amb-bd:#FFE3A8; --amb-line:#F0D9A6; --amb-open-bd:#E2BE72;
+  --amb-tx:#B7791F; --amb-tx2:#8A5A12; --amb-chip:rgba(255,255,255,.75);
+  --hair:rgba(0,0,0,.07); --page:var(--g6); --glow:60,60,67;
+  color-scheme:light;
+}
+/* DARK THEME — follows the device until the visitor picks one with the top-bar button.
+   The same block appears twice: once for the device setting, once for an explicit choice. */
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --blue:#0A84FF; --blue-dk:#409CFF; --blu-lt:#12243D; --black:#FFF;
+  --g1:#F2F2F7; --g2:#D1D1D6; --g3:#AEAEB2; --g4:#8E8E93; --g5:#38383A; --g6:#2C2C2E; --white:#1C1C1E;
+  --green:#30D158; --orange:#FF9F0A; --red:#FF453A; --purple:#BF5AF2;
+  --idiom:#D48CF5; --idiom-lt:#2A1D33; --colloc:#0A84FF; --colloc-lt:#12243D;
+  --sh-1:0 1px 2px rgba(0,0,0,.4); --sh-2:0 4px 14px rgba(0,0,0,.45); --sh-3:0 14px 36px rgba(0,0,0,.55);
+  --glass:rgba(28,28,30,.86); --glass-solid:rgba(28,28,30,.94);
+  --blue-bd:#1F3E66; --blu-hover:#1A3558; --purple-bd:#4A2D5E; --green-tx:#30D158;
+  --amb-bg1:#2B2213; --amb-bg2:#261D0F; --amb-bd:#4D3A17; --amb-line:#4D3A17; --amb-open-bd:#6B5222;
+  --amb-tx:#E0A94A; --amb-tx2:#F0C57A; --amb-chip:rgba(255,255,255,.05);
+  --hair:rgba(255,255,255,.08); --page:#0E0E10; --glow:235,235,245;
+  color-scheme:dark;
+} }
+:root[data-theme="dark"]{
+  --blue:#0A84FF; --blue-dk:#409CFF; --blu-lt:#12243D; --black:#FFF;
+  --g1:#F2F2F7; --g2:#D1D1D6; --g3:#AEAEB2; --g4:#8E8E93; --g5:#38383A; --g6:#2C2C2E; --white:#1C1C1E;
+  --green:#30D158; --orange:#FF9F0A; --red:#FF453A; --purple:#BF5AF2;
+  --idiom:#D48CF5; --idiom-lt:#2A1D33; --colloc:#0A84FF; --colloc-lt:#12243D;
+  --sh-1:0 1px 2px rgba(0,0,0,.4); --sh-2:0 4px 14px rgba(0,0,0,.45); --sh-3:0 14px 36px rgba(0,0,0,.55);
+  --glass:rgba(28,28,30,.86); --glass-solid:rgba(28,28,30,.94);
+  --blue-bd:#1F3E66; --blu-hover:#1A3558; --purple-bd:#4A2D5E; --green-tx:#30D158;
+  --amb-bg1:#2B2213; --amb-bg2:#261D0F; --amb-bd:#4D3A17; --amb-line:#4D3A17; --amb-open-bd:#6B5222;
+  --amb-tx:#E0A94A; --amb-tx2:#F0C57A; --amb-chip:rgba(255,255,255,.05);
+  --hair:rgba(255,255,255,.08); --page:#0E0E10; --glow:235,235,245;
+  color-scheme:dark;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html,body{margin:0;padding:0;}
-html{background:var(--g6);}
+html{background:var(--page); transition:background-color .25s ease;}
 body{
   font-family:'DM Sans',-apple-system,sans-serif; background:transparent; color:var(--g1);
   -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
@@ -44,12 +85,12 @@ body{
 .glow-a{
   width:820px; height:820px; margin:-410px 0 0 -410px;
   /* neutral grey and very faint: the glow is ambience, it shouldn't compete with the content */
-  background:radial-gradient(circle closest-side, rgba(60,60,67,.07), rgba(60,60,67,.03) 46%, rgba(60,60,67,0) 72%);
+  background:radial-gradient(circle closest-side, rgba(var(--glow),.07), rgba(var(--glow),.03) 46%, rgba(var(--glow),0) 72%);
   filter:blur(70px);
 }
 .glow-b{
   width:380px; height:380px; margin:-190px 0 0 -190px;
-  background:radial-gradient(circle closest-side, rgba(60,60,67,.05), rgba(60,60,67,0) 70%);
+  background:radial-gradient(circle closest-side, rgba(var(--glow),.05), rgba(var(--glow),0) 70%);
   filter:blur(40px);
 }
 .bk{font-family:'DM Serif Display',serif;color:var(--black);letter-spacing:-.4px;}
@@ -58,7 +99,7 @@ body{
 
 /* TOP BAR */
 .top-bar{
-  padding:14px 18px; border-bottom:.5px solid rgba(0,0,0,.07);
+  padding:14px 18px; border-bottom:.5px solid var(--hair);
   display:flex; align-items:center; justify-content:space-between; gap:12px;
   background:var(--glass-solid); -webkit-backdrop-filter:saturate(180%) blur(20px);
   backdrop-filter:saturate(180%) blur(20px);
@@ -84,6 +125,40 @@ body{
 .mode-seg button:hover{color:var(--g1);}
 .mode-seg button.active{background:var(--white); color:var(--blue); box-shadow:0 1px 4px rgba(0,0,0,.1);}
 .mode-seg button.active:hover{color:var(--blue);}
+
+
+/* THEME SWITCH */
+.theme-btn{width:36px; height:36px; flex-shrink:0; border-radius:11px; border:.5px solid var(--g5);
+  background:var(--g6); color:var(--g2); cursor:pointer; display:flex; align-items:center; justify-content:center;
+  padding:0; transition:background .18s, color .18s;}
+.theme-btn:hover{background:var(--g5); color:var(--g1);}
+.theme-btn svg{width:18px; height:18px;}
+.theme-btn .moon{display:none;}
+:root[data-theme="dark"] .theme-btn .sun{display:none;}
+:root[data-theme="dark"] .theme-btn .moon{display:block;}
+@media (max-width:560px){ .theme-btn{width:40px; height:40px;} }
+
+/* SEASONAL LAYER — snow, petals, sparkles or leaves drift behind the content.
+   Outer element falls (or rises), inner element sways and turns: two simple transforms. */
+.season-layer{position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;}
+.sz{position:absolute; top:0; will-change:transform; animation:szFall var(--d) linear var(--dl) infinite;}
+.sz > i{display:block; width:var(--s); height:var(--s); opacity:var(--o);
+  animation:szSway var(--sw) ease-in-out var(--dl) infinite alternate;}
+.sz svg{display:block; width:100%; height:100%;}
+@keyframes szFall{from{transform:translate3d(0,-8vh,0)} to{transform:translate3d(var(--dx),108vh,0)}}
+@keyframes szRise{0%{transform:translate3d(0,105vh,0); opacity:0} 15%{opacity:1} 85%{opacity:1}
+  100%{transform:translate3d(var(--dx),30vh,0); opacity:0}}
+@keyframes szSway{from{transform:translateX(calc(var(--sx) * -1)) rotate(calc(var(--r) * -1))}
+  to{transform:translateX(var(--sx)) rotate(var(--r))}}
+.season-summer .sz{animation-name:szRise;}
+.season-summer .sz > i{animation-name:szTwinkle;}
+@keyframes szTwinkle{from{transform:scale(.7); filter:blur(.4px)} to{transform:scale(1.1); filter:blur(0)}}
+/* colours per season and theme: snow needs a cool grey to show on the light page */
+.season-winter{color:#B9CCE3;} :root[data-theme="dark"] .season-winter{color:#E6EEF8;}
+.season-spring{color:#F6B3C8;} :root[data-theme="dark"] .season-spring{color:#E99AB4;}
+.season-summer{color:#FFC23D;} :root[data-theme="dark"] .season-summer{color:#FFD36B;}
+@media (prefers-reduced-motion: reduce){ .season-layer{display:none;} }
+@media print{ .season-layer{display:none !important;} }
 
 /* LAYOUT */
 .wrap{max-width:940px; margin:0 auto; padding:26px 18px 48px;}
@@ -184,7 +259,7 @@ body{
   border:1px solid var(--g5); transition:transform .16s ease, box-shadow .16s ease, border-color .16s ease;
   box-shadow:var(--sh-1); position:relative; overflow:hidden;
 }
-.level-card:hover{transform:translateY(-3px); box-shadow:var(--sh-3); border-color:#D3E4FA;}
+.level-card:hover{transform:translateY(-3px); box-shadow:var(--sh-3); border-color:var(--blue-bd);}
 .level-card:active{transform:translateY(-1px);}
 .level-card .accent{position:absolute; left:0; top:0; bottom:0; width:5px;
   background:linear-gradient(180deg,#3D9BFF,var(--blue)); transition:width .16s ease;}
@@ -205,12 +280,12 @@ body{
 /* ---------- IELTS ---------- */
 .level-card.exam .accent{background:linear-gradient(180deg,#C77DEA,var(--purple));}
 .level-card.exam .cefr{color:var(--purple); background:var(--idiom-lt);}
-.level-card.exam:hover{border-color:#E3CBF4;}
+.level-card.exam:hover{border-color:var(--purple-bd);}
 .exam-tag{position:absolute; top:14px; right:14px; font-size:9.5px; font-weight:700; letter-spacing:.06em;
   text-transform:uppercase; color:var(--purple); background:var(--idiom-lt); padding:3px 8px; border-radius:7px;}
 
 .info-note{display:flex; gap:11px; align-items:flex-start; background:var(--blu-lt);
-  border:1px solid #D3E4FA; border-radius:14px; padding:13px 15px; margin-bottom:18px;}
+  border:1px solid var(--blue-bd); border-radius:14px; padding:13px 15px; margin-bottom:18px;}
 .info-note .ic{flex-shrink:0;}
 .info-note .tx{font-size:13px; line-height:1.5; color:var(--g2);}
 
@@ -237,16 +312,16 @@ body{
 .band-chip .bc-tr{display:none;}
 /* an opened phrase takes the full row so the translations have space to breathe */
 .band-chip.open{display:flex; width:100%; flex-direction:column; align-items:flex-start; gap:6px;
-  padding:9px 12px; border-color:#C7DEFB; background:var(--white);}
+  padding:9px 12px; border-color:var(--blue-bd); background:var(--white);}
 .band-chip.open .chev{transform:rotate(180deg);}
 .band-chip.open .bc-tr{display:flex; flex-direction:column; gap:4px; width:100%;
-  padding-top:7px; border-top:1px dashed #C7DEFB; animation:riseIn .2s ease both;}
+  padding-top:7px; border-top:1px dashed var(--blue-bd); animation:riseIn .2s ease both;}
 .bc-en{display:inline-flex; align-items:center; gap:6px; text-align:left;}
 .bc-tr .r{display:flex; gap:7px; align-items:flex-start; font-size:12.5px; font-weight:500;
   line-height:1.4; color:var(--blue-dk);}
 .bc-tr .r b{flex-shrink:0; width:24px; text-align:center; font-size:8.5px; font-weight:700;
   letter-spacing:.04em; color:#fff; background:var(--blue); border-radius:5px; padding:2px 0; margin-top:2px;}
-.bc-tr .uz{color:#1d8a3e;}
+.bc-tr .uz{color:var(--green-tx);}
 .bc-tr .uz b{background:var(--green);}
 @media (max-width:640px){
   .band-wrap{padding-left:0;}
@@ -276,12 +351,12 @@ body{
   border:1px solid var(--g5); display:flex; align-items:center; gap:14px; min-height:76px;
   transition:transform .16s ease, box-shadow .16s ease, border-color .16s ease; box-shadow:var(--sh-1);
 }
-.unit-card:hover{transform:translateY(-2px); box-shadow:var(--sh-2); border-color:#CFE1F9;}
+.unit-card:hover{transform:translateY(-2px); box-shadow:var(--sh-2); border-color:var(--blue-bd);}
 .unit-card:active{transform:translateY(0);}
 .unit-num{flex-shrink:0; width:42px; height:42px; border-radius:12px; background:var(--blu-lt);
   display:flex; align-items:center; justify-content:center; font-family:'DM Serif Display',serif;
   font-size:19px; color:var(--blue); transition:background .16s ease;}
-.unit-card:hover .unit-num{background:#D9E9FD;}
+.unit-card:hover .unit-num{background:var(--blu-hover);}
 .unit-card.done .unit-num,.unit-card.done:hover .unit-num{background:var(--green); color:#fff;}
 .unit-body{flex:1; min-width:0;}
 /* titles wrap to two lines instead of being cut mid-word */
@@ -315,45 +390,45 @@ body{
 .pill.active{border-color:var(--blue); background:var(--blu-lt); color:var(--blue);}
 
 /* GRAMMAR CALLOUT */
-.grammar-note{background:linear-gradient(135deg,#FFF9EC,#FFF4DC); border:1px solid #FFE3A8;
+.grammar-note{background:linear-gradient(135deg,var(--amb-bg1),var(--amb-bg2)); border:1px solid var(--amb-bd);
   border-radius:14px; padding:14px 16px; margin-bottom:16px; display:flex; gap:12px; align-items:flex-start;}
 .grammar-note .ic{font-size:18px;}
-.grammar-note .gl{font-size:9.5px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#B7791F;}
+.grammar-note .gl{font-size:9.5px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--amb-tx);}
 .grammar-note .gt{font-size:14px; color:var(--g1); margin-top:3px; line-height:1.45;}
 .gram-points{display:flex; flex-direction:column; gap:7px; margin-top:7px;}
 .gram-point{display:flex; gap:9px; align-items:baseline; font-size:14px; color:var(--g1); line-height:1.4;}
-.gp-no{flex-shrink:0; font-size:11px; font-weight:700; color:#B7791F; background:rgba(183,121,31,.14);
+.gp-no{flex-shrink:0; font-size:11px; font-weight:700; color:var(--amb-tx); background:rgba(183,121,31,.14);
   padding:3px 8px; border-radius:7px; font-variant-numeric:tabular-nums;}
 /* the forms that go with the grammar — tap one for its meaning and translation */
-.gform-wrap{margin-top:11px; padding-top:10px; border-top:1px dashed #F0D9A6;}
+.gform-wrap{margin-top:11px; padding-top:10px; border-top:1px dashed var(--amb-line);}
 .gform-lab{font-size:9.5px; font-weight:700; letter-spacing:.09em; text-transform:uppercase;
-  color:#B7791F; opacity:.8; margin-bottom:7px;}
+  color:var(--amb-tx); opacity:.8; margin-bottom:7px;}
 .gforms{display:flex; flex-wrap:wrap; gap:6px;}
 .gform{font-size:12.5px; line-height:1.3; padding:6px 11px; border-radius:9px; font-weight:600;
-  background:rgba(255,255,255,.75); color:#8A5A12; border:1.5px solid #F0D9A6; cursor:pointer;
+  background:var(--amb-chip); color:var(--amb-tx2); border:1.5px solid var(--amb-line); cursor:pointer;
   user-select:none; transition:border-color .14s, background .14s;
   display:inline-flex; align-items:center; gap:6px;}
-.gform:hover{border-color:#B7791F;}
+.gform:hover{border-color:var(--amb-tx);}
 .gform .chev{font-size:9px; opacity:.6; transition:transform .18s ease;}
 .gform .gf-tr{display:none;}
 .gform.open{display:flex; width:100%; flex-direction:column; align-items:flex-start; gap:6px;
-  padding:9px 12px; background:#fff; border-color:#E2BE72;}
+  padding:9px 12px; background:var(--white); border-color:var(--amb-open-bd);}
 .gform.open .chev{transform:rotate(180deg);}
 .gform.open .gf-tr{display:flex; flex-direction:column; gap:4px; width:100%;
-  padding-top:7px; border-top:1px dashed #F0D9A6; animation:riseIn .2s ease both;}
+  padding-top:7px; border-top:1px dashed var(--amb-line); animation:riseIn .2s ease both;}
 .gf-tr .gf-exp{font-size:12.5px; font-weight:500; color:var(--g2); line-height:1.4;}
 .gf-tr .r{display:flex; gap:7px; align-items:flex-start; font-size:12.5px; font-weight:500;
   line-height:1.4; color:var(--blue-dk);}
 .gf-tr .r b{flex-shrink:0; width:24px; text-align:center; font-size:8.5px; font-weight:700;
   letter-spacing:.04em; color:#fff; background:var(--blue); border-radius:5px; padding:2px 0; margin-top:2px;}
-.gf-tr .uz{color:#1d8a3e;}
+.gf-tr .uz{color:var(--green-tx);}
 .gf-tr .uz b{background:var(--green);}
-.q-grammar{font-size:13px; color:var(--g2); background:var(--idiom-lt); border:1px solid #E9D5F7;
+.q-grammar{font-size:13px; color:var(--g2); background:var(--idiom-lt); border:1px solid var(--purple-bd);
   border-radius:10px; padding:9px 12px; line-height:1.45; display:flex; gap:8px; align-items:flex-start;}
 .q-grammar .gic{flex-shrink:0;}
 .q-grammar b{color:var(--idiom); font-weight:700;}
 .q-example{background:rgba(52,199,89,.08); border:1px solid rgba(52,199,89,.32); border-radius:11px; padding:11px 13px;}
-.q-example .ex-tag{display:inline-block; font-size:10px; font-weight:700; letter-spacing:.02em; color:#1d8a3e;
+.q-example .ex-tag{display:inline-block; font-size:10px; font-weight:700; letter-spacing:.02em; color:var(--green-tx);
   background:rgba(52,199,89,.16); padding:3px 9px; border-radius:7px; margin-bottom:7px;}
 .q-example .ex-text{font-size:13.5px; color:var(--g1); line-height:1.55; font-style:italic;}
 .t-q-gram{font-size:12px; color:var(--idiom); margin-bottom:11px; line-height:1.4;}
@@ -363,13 +438,13 @@ body{
 .expr-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:11px;}
 .expr-card{background:var(--white); border:1px solid var(--g5); border-radius:14px; padding:14px 15px;
   box-shadow:var(--sh-1); transition:box-shadow .16s ease, transform .16s ease, border-color .16s ease;}
-.expr-card:hover{box-shadow:var(--sh-2); transform:translateY(-2px); border-color:#DCE7F6;}
+.expr-card:hover{box-shadow:var(--sh-2); transform:translateY(-2px); border-color:var(--blue-bd);}
 .expr-top{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:7px;}
 .expr-text{font-weight:600; font-size:15px; color:var(--g1); line-height:1.25;}
 .type-tag{flex-shrink:0; font-size:10px; font-weight:700; letter-spacing:.03em; padding:3px 9px; border-radius:7px; text-transform:uppercase;}
 .type-tag.colloc{color:var(--colloc); background:var(--colloc-lt);}
 .type-tag.idiom{color:var(--idiom); background:var(--idiom-lt);}
-.type-tag.other{color:#B7791F; background:rgba(183,121,31,.13);}
+.type-tag.other{color:var(--amb-tx); background:rgba(183,121,31,.13);}
 .expr-exp{font-size:13px; color:var(--g3); line-height:1.45;}
 .expr-card.has-ru{cursor:pointer;}
 .expr-card.has-ru:active{transform:scale(.996);}
@@ -381,7 +456,7 @@ body{
 .expr-tr .tr-flag{flex-shrink:0; width:26px; text-align:center; font-size:9px; font-weight:700;
   letter-spacing:.05em; color:#fff; background:var(--blue); padding:2px 0; border-radius:6px; margin-top:2px;}
 /* Uzbek sits under Russian, tinted green so the two are told apart at a glance */
-.expr-tr.uz{color:#1d8a3e;}
+.expr-tr.uz{color:var(--green-tx);}
 .expr-tr.uz .tr-flag{background:var(--green);}
 .expr-hint{display:flex; align-items:center; gap:7px; margin-top:9px; font-size:11px; font-weight:600;
   color:var(--g4); letter-spacing:.01em; user-select:none;}
@@ -410,10 +485,10 @@ body{
 .chip.phrase .bc-tr{display:none;}
 /* an opened phrase takes the full row, matching the Part 3 pills */
 .chip.phrase.open{display:flex; width:100%; flex-direction:column; align-items:flex-start; gap:6px;
-  padding:9px 12px; border-color:#C7DEFB; background:var(--white);}
+  padding:9px 12px; border-color:var(--blue-bd); background:var(--white);}
 .chip.phrase.open .chev{transform:rotate(180deg);}
 .chip.phrase.open .bc-tr{display:flex; flex-direction:column; gap:4px; width:100%;
-  padding-top:7px; border-top:1px dashed #C7DEFB; animation:riseIn .2s ease both;}
+  padding-top:7px; border-top:1px dashed var(--blue-bd); animation:riseIn .2s ease both;}
 .timer-row{display:flex; align-items:center; gap:12px; margin-top:14px; padding-top:13px; border-top:.5px solid var(--g5);}
 .timer-disp{font-family:'DM Serif Display',serif; font-size:22px; color:var(--g1); min-width:58px;}
 .timer-disp.run{color:var(--blue);} .timer-disp.done{color:var(--red);}
@@ -452,7 +527,7 @@ body{
 .quiz-opt{background:var(--white); border:1.5px solid var(--g5); border-radius:12px; padding:13px 15px;
   font-size:14.5px; font-weight:600; color:var(--g1); cursor:pointer; text-align:left; transition:all .14s; font-family:'DM Sans',sans-serif;}
 .quiz-opt:hover{border-color:var(--blue); background:var(--blu-lt);}
-.quiz-opt.correct{border-color:var(--green); background:rgba(52,199,89,.12); color:#1d8a3e;}
+.quiz-opt.correct{border-color:var(--green); background:rgba(52,199,89,.12); color:var(--green-tx);}
 .quiz-opt.wrong{border-color:var(--red); background:rgba(255,59,48,.1); color:var(--red);}
 .quiz-opt:disabled{cursor:default;}
 .quiz-score{text-align:center; padding:30px 20px;}
@@ -506,7 +581,7 @@ select.input{appearance:none; -webkit-appearance:none; background-image:url("dat
   font-size:12.5px; color:var(--g3); cursor:pointer; user-select:none;}
 .keep-row input{width:16px; height:16px; accent-color:var(--blue); cursor:pointer; flex-shrink:0;}
 .signed-row{display:flex; align-items:center; gap:11px; margin-top:14px; flex-wrap:wrap;}
-.signed-in{font-size:12px; font-weight:600; color:#1d8a3e; background:rgba(52,199,89,.14);
+.signed-in{font-size:12px; font-weight:600; color:var(--green-tx); background:rgba(52,199,89,.14);
   padding:5px 11px; border-radius:8px;}
 
 /* TEST RUNNER */
@@ -572,7 +647,7 @@ select.input{appearance:none; -webkit-appearance:none; background-image:url("dat
 .sum-unit-row .pc{font-size:13px; font-weight:600; color:var(--g3); min-width:38px; text-align:right;}
 
 /* FOOTER */
-.footer{padding:16px 20px; border-top:.5px solid rgba(0,0,0,.07); display:flex; align-items:center;
+.footer{padding:16px 20px; border-top:.5px solid var(--hair); display:flex; align-items:center;
   justify-content:space-between; background:var(--glass); flex-wrap:wrap; gap:8px;
   -webkit-backdrop-filter:saturate(180%) blur(20px); backdrop-filter:saturate(180%) blur(20px);
   flex-shrink:0; position:relative; z-index:1;}
@@ -580,7 +655,9 @@ select.input{appearance:none; -webkit-appearance:none; background-image:url("dat
 .footer .r{font-size:10.5px; color:var(--g4);}
 
 /* SNAPSHOT (export) */
-#snapshot{position:fixed; left:-9999px; top:0; width:540px; background:#fff;}
+#snapshot{position:fixed; left:-9999px; top:0; width:540px; background:#fff;
+  --blue:#007AFF; --black:#000; --g1:#1C1C1E; --g2:#3A3A3C; --g3:#636366; --g4:#AEAEB2;
+  --g5:#E5E5EA; --g6:#F2F2F7; --white:#FFF; --blu-lt:#EAF3FF; --green:#34C759; --green-tx:#1d8a3e;}
 .snap-inner{width:540px; background:#fff; font-family:'DM Sans',sans-serif; position:relative; overflow:hidden;}
 .snap-accent{height:6px; background:linear-gradient(90deg,#007AFF,#5AC8FA);}
 .snap-pad{padding:34px 38px 30px;}
@@ -705,6 +782,8 @@ select.input{appearance:none; -webkit-appearance:none; background-image:url("dat
 @media print{
   .top-bar,.tabs,.footer,.btn,.mini-btn,.studied-bar,.timer-row,.glow-layer,.hero-stage{display:none !important;}
   html,body{background:#fff;}
+  :root,:root[data-theme="dark"]{--blue:#007AFF; --black:#000; --g1:#1C1C1E; --g2:#3A3A3C; --g3:#636366; --g4:#AEAEB2;
+  --g5:#E5E5EA; --g6:#F2F2F7; --white:#FFF; --blu-lt:#EAF3FF; --green:#34C759; --green-tx:#1d8a3e; --page:#fff; color-scheme:light;}
   .wrap{max-width:100%;}
   .t-q-card,.q-card,.expr-card{break-inside:avoid;}
 }
@@ -782,10 +861,16 @@ select.input{appearance:none; -webkit-appearance:none; background-image:url("dat
   <div class="glow glow-b"></div>
 </div>
 
+<div class="season-layer" id="seasonLayer" aria-hidden="true"></div>
+
 <div class="top-bar">
   <button class="brand" onclick="goHome()" title="Back to levels" aria-label="Sevenine — back to levels"><span class="bk">Seve</span><span class="bb">n</span><span class="bk">ine</span></button>
   <div style="display:flex; align-items:center; gap:10px;">
     <span class="doc-badge" id="docBadge">Speaking Programme</span>
+    <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" aria-label="Switch to dark theme" title="Switch theme">
+      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg>
+      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14.3A8.5 8.5 0 0 1 9.7 3.5a8.5 8.5 0 1 0 10.8 10.8z"/></svg>
+    </button>
     <div class="mode-seg">
       <button id="mStudent" class="active" onclick="setMode('student')">Student</button>
       <button id="mTeacher" onclick="setMode('teacher')">Teacher</button>
@@ -1648,7 +1733,7 @@ function renderTeacherHome(){
         <div class="range-row"><input class="input" id="tFrom" type="number" min="1" onchange="onRange()">
           <span>to</span><input class="input" id="tTo" type="number" min="1" onchange="onRange()"></div>
         <div style="font-size:12px; color:var(--g4); margin-top:6px;">Set automatically by test type — change it to test specific units.</div></div>
-      <div class="grammar-note" style="background:var(--blu-lt); border-color:#BFDCFF;">
+      <div class="grammar-note" style="background:var(--blu-lt); border-color:var(--blue-bd);">
         <div class="ic">🎲</div><div><div class="gl" style="color:var(--blue)">What will be tested</div>
         <div class="gt" id="testInfo"></div></div></div>
       <button class="btn btn-primary btn-block" onclick="startTest()" style="margin-top:4px;">Start test →</button>
@@ -1894,6 +1979,71 @@ function exportResult(){
     raf = (Math.abs(tx-cx)+Math.abs(ty-cy) > .04) ? requestAnimationFrame(tick) : null;
   }
 })();
+
+/* ---------- seasonal decoration, chosen from today's date ---------- */
+/* Tashkent is in the northern hemisphere: Dec–Feb winter, Mar–May spring, Jun–Aug summer,
+   Sep–Nov autumn. Add ?season=winter (or spring/summer/autumn) to the URL to preview one. */
+function currentSeason(){
+  const q=new URLSearchParams(location.search).get("season");
+  if(["winter","spring","summer","autumn"].includes(q)) return q;
+  const m=new Date().getMonth();
+  return m===11||m<=1 ? "winter" : m<=4 ? "spring" : m<=7 ? "summer" : "autumn";
+}
+const SEASON_SHAPES={
+  winter:()=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 2v20M3.3 7l17.4 10M3.3 17L20.7 7M12 2l-2.2 2.2M12 2l2.2 2.2M12 22l-2.2-2.2M12 22l2.2-2.2"/></svg>`,
+  spring:()=>`<svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2c4.5 3.2 6.5 7.4 5.4 12.2C16.6 18 14.6 21 12 22c-2.6-1-4.6-4-5.4-7.8C5.5 9.4 7.5 5.2 12 2z" opacity=".92"/><path d="M12 5v14" stroke="#fff" stroke-opacity=".35" stroke-width="1"/></svg>`,
+  summer:()=>`<svg viewBox="0 0 24 24"><defs><radialGradient id="szg"><stop offset="0" stop-color="currentColor"/><stop offset=".35" stop-color="currentColor" stop-opacity=".55"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></radialGradient></defs><circle cx="12" cy="12" r="12" fill="url(#szg)"/></svg>`,
+  autumn:()=>{
+    const c=["#E8833A","#D9562B","#C0392B","#E9B23C","#B5652A"][Math.floor(Math.random()*5)];
+    // a plain leaf with a midrib reads as a leaf even at 14px, where a maple outline turns to a star
+    return `<svg viewBox="0 0 24 24"><path fill="${c}" d="M12 1.5C6.2 5.3 4 10.8 5.6 16.3 6.6 19.6 9 21.5 12 22.5c3-1 5.4-2.9 6.4-6.2C20 10.8 17.8 5.3 12 1.5z"/><path d="M12 5.5v17M12 11l-3.2-2.6M12 11l3.2-2.6M12 15.5l-3.8-2.8M12 15.5l3.8-2.8" stroke="#000" stroke-opacity=".22" stroke-width="1" stroke-linecap="round" fill="none"/></svg>`;
+  }
+};
+function renderSeason(){
+  const layer=document.getElementById("seasonLayer");
+  if(!layer || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const season=currentSeason();
+  layer.className="season-layer season-"+season;
+  // sparse on purpose — decoration, not a distraction; fewer again on small screens
+  const n = innerWidth<600 ? 9 : 16;
+  const rnd=(a,b)=>a+Math.random()*(b-a);
+  const slow = season==="summer" ? 1.4 : 1;
+  let html="";
+  for(let i=0;i<n;i++){
+    const d=rnd(16,30)*slow;
+    const size = season==="winter" ? rnd(9,17) : season==="summer" ? rnd(8,16) : season==="autumn" ? rnd(15,24) : rnd(12,20);
+    const st=[
+      `left:${rnd(0,100).toFixed(1)}%`,
+      `--d:${d.toFixed(1)}s`, `--dl:${(-rnd(0,d)).toFixed(1)}s`,   // negative delay: already mid-flight on load
+      `--dx:${rnd(-60,60).toFixed(0)}px`,
+      `--s:${size.toFixed(0)}px`,
+      `--o:${(season==="summer"?rnd(.45,.8):rnd(.45,.75)).toFixed(2)}`,
+      `--sw:${rnd(2.6,5).toFixed(1)}s`, `--sx:${rnd(8,26).toFixed(0)}px`,
+      `--r:${(season==="winter"?rnd(20,60):season==="summer"?0:rnd(40,160)).toFixed(0)}deg`
+    ].join(";");
+    html+=`<div class="sz" style="${st}"><i>${SEASON_SHAPES[season]()}</i></div>`;
+  }
+  layer.innerHTML=html;
+}
+renderSeason();
+
+/* ---------- theme switch ---------- */
+function applyTheme(t){
+  document.documentElement.setAttribute("data-theme", t);
+  const b=$("#themeBtn");
+  if(b) b.setAttribute("aria-label", t==="dark" ? "Switch to light theme" : "Switch to dark theme");
+}
+function toggleTheme(){
+  const t = document.documentElement.getAttribute("data-theme")==="dark" ? "light" : "dark";
+  try{ localStorage.setItem("sev_theme", t); }catch(e){}
+  applyTheme(t);
+}
+applyTheme(document.documentElement.getAttribute("data-theme")||"light");
+// until the visitor chooses, keep following the device if it switches (e.g. at sunset)
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", e=>{
+  let saved=null; try{ saved=localStorage.getItem("sev_theme"); }catch(err){}
+  if(saved!=="light" && saved!=="dark") applyTheme(e.matches ? "dark" : "light");
+});
 
 /* ---------- boot ---------- */
 /* always land on the level cards, never on the last level opened */
